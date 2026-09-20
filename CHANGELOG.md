@@ -83,6 +83,11 @@ First public release. Research/automation software. **Live trading is disabled b
 - 438 tests: unit, integration, failure-mode and security suites.
 - Documentation: README, user guide, configuration reference, architecture, security, troubleshooting,
   development status, contributing, security policy, PR/issue templates.
+- **Arabic documentation**: `README.ar.md` (full download-and-run guide), plus
+  `docs/USER_GUIDE.ar.md` and `docs/SECURITY.ar.md`, all RTL-formatted for correct rendering on
+  GitHub and cross-linked from the English README.
+- A documentation test suite that fails the build on broken relative links, on a documented CLI
+  command that does not exist, or on RTL markup being dropped from the Arabic guides.
 
 ### Licensing
 

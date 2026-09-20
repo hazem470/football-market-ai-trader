@@ -1,5 +1,7 @@
 # Football Market AI Trader
 
+**[العربية — دليل عربي كامل](README.ar.md)** · English
+
 An open-source research engine that **discovers the football markets which actually exist on
 Polymarket**, models their true probability from football data, compares that against the price you
 can really execute at, applies hard risk limits, and only then decides **BUY / SELL / NO TRADE**.
@@ -175,6 +177,9 @@ Every variable is documented in [docs/CONFIGURATION.md](docs/CONFIGURATION.md).
 
 | Document | Contents |
 |---|---|
+| **[README.ar.md](README.ar.md)** | **دليل عربي كامل: التنزيل والتشغيل خطوة بخطوة** |
+| **[docs/USER_GUIDE.ar.md](docs/USER_GUIDE.ar.md)** | **الدليل العربي الكامل للمستخدم** |
+| **[docs/SECURITY.ar.md](docs/SECURITY.ar.md)** | **دليل الأمان بالعربي** |
 | [docs/USER_GUIDE.md](docs/USER_GUIDE.md) | Step-by-step setup for a non-programmer: Python, Git, clone, `.env`, Polymarket account, data keys, and the backtest -> shadow -> paper -> live ladder. |
 | [docs/CONFIGURATION.md](docs/CONFIGURATION.md) | Every environment variable and YAML key, with purpose and examples. |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Module map, data flow, the edge-decomposition table, model maths, and **data limitations**. |
