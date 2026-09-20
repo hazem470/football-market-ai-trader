@@ -1,0 +1,62 @@
+# --- secrets / credentials (NEVER COMMIT) ---
+.env
+.env.*
+!.env.example
+*.env
+*.pem
+*.key
+secrets/
+credentials/
+private_keys/
+data/private/
+wallet.json
+pk.txt
+
+# --- runtime data ---
+# SQLite creates -wal and -shm sidecar files next to the database; a bare `*.db`
+# pattern does not match them, so they are listed explicitly.
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+*.sqlite
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+data/*.csv
+data/cache/
+data/raw/
+data/*.db*
+logs/
+artifacts/
+reports/*.json
+!reports/.gitkeep
+
+# --- local scratch ---
+*.tmp
+*.bak
+*.orig
+*.log
+
+# --- python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# --- editors / os ---
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

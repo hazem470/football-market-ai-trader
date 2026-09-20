@@ -1,0 +1,37 @@
+MIT License
+
+Copyright (c) 2026 Football Market AI Trader contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---------------------------------------------------------------------------
+ADDITIONAL NOTICE - RESEARCH / AUTOMATION SOFTWARE, NO PROFIT GUARANTEE
+
+This project is software for research and automation purposes. It does NOT
+guarantee profits, positive returns, or any particular trading outcome.
+Nothing it produces is financial advice.
+
+Trading on prediction markets involves substantial risk of loss. You are
+solely responsible for your own funds, your own credentials, your own
+wallets and your own regulatory compliance. The authors and contributors
+have no access to and no control over any user's funds, accounts or keys.
+
+Live trading is DISABLED by default. Use backtest / shadow / paper modes
+first, and never trade more than you can afford to lose.
+---------------------------------------------------------------------------

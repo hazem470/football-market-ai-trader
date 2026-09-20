@@ -1,0 +1,17 @@
+{
+  "_comment": [
+    "Extend the data-requirements engine WITHOUT touching Python.",
+    "extra_features are appended to the market family's feature list; they must",
+    "be produced by the feature engine (see src/features/engine.py) otherwise",
+    "they stay null and any market that treats them as critical stays NO TRADE."
+  ],
+  "MATCH_RESULT": { "extra_features": [] },
+  "TOTAL_GOALS": { "extra_features": [] },
+  "BTTS": { "extra_features": [] },
+  "CORNERS": { "extra_features": [] },
+  "TEAM_TOTALS": { "extra_features": [] },
+  "PLAYER_GOAL": { "extra_features": [] },
+  "PLAYER_ASSIST": { "extra_features": [] },
+  "PLAYER_GOALS_PLUS_ASSISTS": { "extra_features": [] },
+  "PLAYER_SHOTS": { "extra_features": [] }
+}

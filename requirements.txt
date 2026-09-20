@@ -1,0 +1,14 @@
+# --- core runtime ---
+numpy>=1.26,<3
+scipy>=1.11,<2
+pandas>=2.1,<3
+httpx>=0.27,<1
+PyYAML>=6.0
+python-dotenv>=1.0
+tenacity>=8.2
+
+# --- dashboard ---
+streamlit>=1.36,<2
+
+# --- live execution on Polymarket (optional: pip install -r requirements-live.txt) ---
+# py-clob-client is NOT required for backtest / shadow / paper modes.

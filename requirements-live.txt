@@ -1,0 +1,7 @@
+# Optional extra: real Polymarket order placement (LIVE mode only).
+# Official client. Verify the current package/API before using:
+#   https://docs.polymarket.com  |  https://github.com/Polymarket/py-clob-client
+py-clob-client>=0.34,<1
+# Newer unified client (review https://docs.polymarket.com/getting-started/python):
+# py-clob-client-v2>=1.1
+# polymarket-client>=0.10
