@@ -5,6 +5,8 @@ import pytest
 
 from app.cli.main import build_parser, cmd_lint_config, cmd_version, main
 
+REPO_CONFIG = __import__("pathlib").Path(__file__).resolve().parents[1] / "configs" / "config.yaml"
+
 
 def test_version_command(capsys):
     assert cmd_version(None) == 0
@@ -79,5 +81,53 @@ def test_stop_command_engages_the_kill_switch(settings, tmp_path, capsys):
         runtime.stop("unit test")
         assert runtime.risk.breaker.manual_stop
         assert not runtime.risk.breaker.allows_new_orders()[0]
+    finally:
+        runtime.close()
+
+
+def test_league_pool_lookup_is_case_insensitive(tmp_path, monkeypatch):
+    """`--league E0` must select E0, not silently fall back to every league."""
+    from src.config.settings import load_settings
+    from src.core.runtime import Runtime
+    from tests.conftest import make_match
+
+    resolved = load_settings(config_path=REPO_CONFIG, env_file=tmp_path / "absent.env")
+    resolved.repo_root = tmp_path
+    resolved.database_path = str(tmp_path / "t.db")
+    resolved.ensure_dirs()
+    runtime = Runtime.build(resolved, load_data=False, build_venue=False)
+    try:
+        from src.data.normalization.canonical import TeamHistory
+
+        runtime.history = TeamHistory([
+            make_match("A", "B", 1, 0, league="E0"),
+            make_match("C", "D", 1, 0, league="D1"),
+        ])
+        assert len(runtime._resolve_pool("E0")) == 1
+        assert len(runtime._resolve_pool("e0")) == 1
+        assert len(runtime._resolve_pool("D1")) == 1
+        assert len(runtime._resolve_pool("")) == 2
+        assert runtime._resolve_pool("NOPE") == []
+    finally:
+        runtime.close()
+
+
+def test_backtest_reports_an_error_for_an_unknown_league(tmp_path):
+    from src.config.settings import load_settings
+    from src.core.runtime import Runtime
+
+    resolved = load_settings(config_path=REPO_CONFIG, env_file=tmp_path / "absent.env")
+    resolved.repo_root = tmp_path
+    resolved.database_path = str(tmp_path / "t.db")
+    resolved.ensure_dirs()
+    runtime = Runtime.build(resolved, load_data=False, build_venue=False)
+    try:
+        from src.data.normalization.canonical import TeamHistory
+        from tests.conftest import make_match
+
+        runtime.history = TeamHistory([make_match("A", "B", 1, 0, league="E0")])
+        report = runtime.run_backtest(market_type="MATCH_RESULT", league="ZZZ")
+        assert "error" in report
+        assert "ZZZ" in report["error"] or "no finished matches" in report["error"]
     finally:
         runtime.close()

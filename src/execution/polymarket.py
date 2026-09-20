@@ -41,7 +41,8 @@ class PolymarketExecutor(ExecutionVenue):
     clob_host: str = "https://clob.polymarket.com"
     gamma_host: str = "https://gamma-api.polymarket.com"
     allow_live: bool = False
-    client = None
+    #: The official SDK client, injected/created in `initialise()`.
+    client: object | None = None
     name: str = "polymarket"
     is_live: bool = True
     _initialised: bool = field(default=False, init=False)

@@ -40,7 +40,12 @@ class BacktestConfig:
     bookmaker: str = "bet365"
     edge_capture: float = 1.0       # fraction of modelled edge actually realised
     min_history_matches: int = 120
-    train_window: int = 0           # 0 = expanding window from the start
+    #: Maximum number of *most recent* matches used to fit the model at each
+    #: walk-forward step. 0 means "unbounded expanding window", which refits on
+    #: the entire history every step (O(n^2) and unusable on a real season), so a
+    #: bounded default is used. 600 covers roughly two seasons of one league.
+    train_window: int = 600
+    refit_every: int = 1            # refit cadence; >1 reuses the previous fit
     walk_forward: bool = True
     price_floor: float = 0.02
     price_ceiling: float = 0.98
@@ -267,17 +272,30 @@ class Backtester:
             result.duration_seconds = time.perf_counter() - started
             return result
 
+        # Refitting at every single step is expensive; `refit_every` lets a long
+        # backtest reuse a fit for a few fixtures without material drift, while
+        # the default (1) keeps the walk-forward honest.
+        cached_model = None
+        cached_history_len = -1
+
         for index in range(self.config.min_history_matches, len(usable)):
             match = usable[index]
             history = usable[:index]
             if self.config.train_window:
                 history = history[-self.config.train_window:]
 
-            model = self.model_factory()
-            try:
-                model.fit(history, league_label=league)
-            except Exception:
-                continue
+            if cached_model is None or (index - self.config.min_history_matches) % max(
+                1, self.config.refit_every
+            ) == 0:
+                model = self.model_factory()
+                try:
+                    model.fit(history, league_label=league)
+                except Exception:
+                    continue
+                cached_model = model
+                cached_history_len = len(history)
+            model = cached_model
+            _ = cached_history_len
 
             outcome, price = self._target_and_price(match, market_type)
             if outcome is None or price is None:

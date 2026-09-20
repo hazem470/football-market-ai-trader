@@ -107,3 +107,25 @@ def test_sharpe_is_suppressed_with_too_few_periods(synthetic_history):
     metrics = result.trading_metrics()
     if metrics.get("n_trades") and metrics["n_trades"] < 30:
         assert metrics["sharpe_ratio"] is None
+
+
+def test_train_window_is_bounded_by_default():
+    """An unbounded expanding window refits on the whole history at every step,
+    which is O(n^2) and hangs on a real season."""
+    config = BacktestConfig()
+    assert config.train_window > 0
+    assert config.train_window <= 2000
+
+
+def test_bounded_window_still_produces_predictions(synthetic_history):
+    config = BacktestConfig(min_edge=0.0, min_history_matches=100, train_window=150)
+    result = Backtester(model_factory=lambda: MatchResultModel(min_matches=100),
+                        config=config).run(synthetic_history.matches, "MATCH_RESULT", league="E0")
+    assert result.model_predictions
+
+
+def test_refit_every_reuses_the_model_but_still_predicts(synthetic_history):
+    config = BacktestConfig(min_edge=0.0, min_history_matches=100, train_window=150, refit_every=5)
+    result = Backtester(model_factory=lambda: MatchResultModel(min_matches=100),
+                        config=config).run(synthetic_history.matches, "MATCH_RESULT", league="E0")
+    assert len(result.model_predictions) > 50

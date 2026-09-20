@@ -63,7 +63,7 @@ class Runtime:
     order_manager: OrderManager | None = None
     positions: PositionManager | None = None
     notifications: NotificationCenter | None = None
-    ai = None
+    ai: object | None = None
     discovery: MarketDiscovery | None = None
     last_preflight: PreflightReport | None = None
 
@@ -502,7 +502,12 @@ class Runtime:
         config = BacktestConfig.from_settings(self.settings)
         if min_matches:
             config.min_history_matches = min_matches
-        pool = self.history.by_league.get(league.lower(), self.history.matches) if league else self.history.matches
+        pool = self._resolve_pool(league)
+        if league and not pool:
+            return {
+                "error": f"no finished matches for league {league!r}; loaded leagues: "
+                         + ", ".join(sorted(self.history.by_league)) or "(none)"
+            }
         backtester = Backtester(model_factory=factory, config=config)
         result = backtester.run(pool, market_type, league=league)
         report = result.report()
@@ -512,6 +517,30 @@ class Runtime:
             except Exception as exc:
                 log_event(self.log, "db_error", "backtest persistence failed", error=str(exc))
         return report
+
+    def _resolve_pool(self, league: str) -> list[MatchRecord]:
+        """Select the match pool for a league code.
+
+        `by_league` is keyed by whichever code the provider supplied (usually the
+        upper-case football-data.co.uk code such as ``E0``), so the lookup must be
+        case-insensitive. A silent miss here would fall back to EVERY loaded
+        league and make the report meaningless, so a miss returns an empty list
+        and the caller reports the loaded leagues instead of guessing.
+        """
+        if self.history is None:
+            return []
+        if not league:
+            return self.history.matches
+        wanted = league.strip().lower()
+        for key, pool in self.history.by_league.items():
+            if key.strip().lower() == wanted:
+                return pool
+        # Also accept a league NAME ("Premier League") as a convenience.
+        for match in self.history.matches:
+            if (match.league or "").strip().lower() == wanted:
+                return [m for m in self.history.matches
+                        if (m.league or "").strip().lower() == wanted]
+        return []
 
     def calibrate_from_backtest(self, market_type: str = MarketType.MATCH_RESULT.value,
                                 league: str = "") -> dict:
@@ -532,7 +561,7 @@ class Runtime:
             MarketType.BTTS.value: BttsModel,
         }
         config = BacktestConfig.from_settings(self.settings)
-        pool = self.history.by_league.get(league.lower(), self.history.matches) if league else self.history.matches
+        pool = self._resolve_pool(league)
         backtester = Backtester(model_factory=factories[market_type], config=config)
         raw = backtester.run(pool, market_type, league=league)
         assert self.calibration is not None

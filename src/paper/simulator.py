@@ -152,7 +152,10 @@ class PaperVenue(ExecutionVenue):
     """Simulated exchange. Uses the real book when available."""
 
     config: PaperConfig = field(default_factory=PaperConfig)
-    clob = None
+    #: Any object exposing `.book(token_id)` / `.snapshot(token_id)` - normally the
+    #: CLOB provider. Annotated so dataclass actually creates the field; an
+    #: unannotated assignment here was silently dropped and broke paper mode.
+    clob: object | None = None
     portfolio: Portfolio = field(default_factory=Portfolio)
     name: str = "paper"
     is_live: bool = False
