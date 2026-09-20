@@ -61,7 +61,7 @@ football-market-ai-trader/
 │   │   └── health.py              # HEALTHY / WARNING / CRITICAL, blocks trading
 │   ├── ai/                        # optional fact extraction (never decides)
 │   └── storage/database.py        # SQLite schema + typed accessors (Postgres-ready)
-├── tests/                         # 420 tests: unit, integration, failure, security
+├── tests/                         # 438 tests: unit, integration, failure, security
 ├── scripts/                       # run_all.py, scan_secrets.py
 └── docs/
 ```

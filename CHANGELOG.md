@@ -80,7 +80,7 @@ First public release. Research/automation software. **Live trading is disabled b
 - Dockerfile and docker-compose (no secrets baked in, unprivileged user).
 - GitHub Actions CI: ruff, configuration validation, the full test suite and the secret scan on
   Python 3.10/3.11/3.12, plus bandit and pip-audit.
-- 420 tests: unit, integration, failure-mode and security suites.
+- 438 tests: unit, integration, failure-mode and security suites.
 - Documentation: README, user guide, configuration reference, architecture, security, troubleshooting,
   development status, contributing, security policy, PR/issue templates.
 

@@ -26,13 +26,36 @@
 | 17 | Live trading with a tiny balance | ⛔ **NOT DONE — requires your credentials and your money. Deliberately out of scope for the authors.** |
 | 18 | GitHub v1.0 release | ⚠️ repository prepared; push requires your GitHub authentication |
 
+## Post-release verification
+
+Re-run after the CI security fixes, from a **fresh clone of the public repository**
+(no local state, no `.env`, dependencies installed from scratch):
+
+| Check | Result |
+|---|---|
+| Clone | 142 tracked files, **no `.env`, no database, no logs, no virtualenv** |
+| `pip install -r requirements.txt -r requirements-dev.txt` | succeeded |
+| `ruff check .` | `All checks passed!` |
+| `python scripts/scan_secrets.py` | `Secret scan clean (137 files checked).` |
+| `python -m app.cli lint-config` | `Configuration is valid.` |
+| `pytest` | **438 passed** |
+| `python -m app.cli init` | directories, 19-table database, `.env` from the template |
+| `python -m app.cli check` | `READY - 0 critical failure(s), 0 warning(s)` |
+| `python scripts/verify_end_to_end.py --quick` | **19/19 checks passed** |
+| GitHub Actions | test matrix **green** on Python 3.10 / 3.11 / 3.12; bandit and pip-audit jobs green |
+
+The end-to-end verifier produced a live actionable signal on real E0 teams —
+MATCH_RESULT at model probability 0.470 against an executable ask of 0.330 for a
+realistic edge of +0.082 — and `NO_TRADE` for the other supported families, each
+with its edge printed.
+
 ## Verified by execution
 
 Everything below was run and observed (not asserted from reading code):
 
 | What | Evidence |
 |---|---|
-| Full test suite | `420 passed` |
+| Full test suite | `438 passed` |
 | Lint | `ruff check .` → `All checks passed!` |
 | Secret scan | `python scripts/scan_secrets.py` → `Secret scan clean (125 files checked).` |
 | Pre-flight against live APIs | `python -m app.cli check` → `READY - 0 critical failure(s), 0 warning(s)` |

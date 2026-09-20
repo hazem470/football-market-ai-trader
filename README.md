@@ -187,7 +187,7 @@ Every variable is documented in [docs/CONFIGURATION.md](docs/CONFIGURATION.md).
 ## Testing
 
 ```bash
-pytest -q                      # 420 unit + integration tests, no network, no credentials
+pytest -q                      # 438 unit + integration tests, no network, no credentials
 pytest -q -m network           # opt-in tests that hit the live public APIs
 ruff check .                   # lint
 python scripts/scan_secrets.py # repository secret scan (also runs in CI)
