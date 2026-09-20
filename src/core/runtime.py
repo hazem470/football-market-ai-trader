@@ -16,7 +16,12 @@ from src.calibration.calibrators import CalibrationService, build_calibrator
 from src.config.settings import Settings
 from src.core.http import HttpxClient
 from src.core.preflight import PreflightReport, run_preflight
-from src.data.normalization.canonical import Normalizer, PlayerRecord, TeamHistory
+from src.data.normalization.canonical import (
+    MatchRecord,
+    Normalizer,
+    PlayerRecord,
+    TeamHistory,
+)
 from src.data.providers.injuries import FplAvailabilityProvider
 from src.data.providers.lineups import MinutesBasedLineupProvider
 from src.data.providers.registry import ProviderRegistry

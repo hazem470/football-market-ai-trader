@@ -31,9 +31,9 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
-from src.config.settings import load_settings                              # noqa: E402
-from src.core.runtime import Runtime                                      # noqa: E402
-from src.markets.schema import Market, MarketSnapshot, MarketType         # noqa: E402
+from src.config.settings import load_settings  # noqa: E402
+from src.core.runtime import Runtime  # noqa: E402
+from src.markets.schema import Market, MarketSnapshot, MarketType  # noqa: E402
 
 RESULTS: list[tuple[str, bool, str]] = []
 
@@ -47,6 +47,7 @@ def build_market(market_type: MarketType, **kwargs) -> Market:
     now = dt.datetime.now(dt.timezone.utc)
     fmt = "%Y-%m-%dT%H:%M:%SZ"
     return Market(
+        market_type=market_type,          # must be forwarded, or Market defaults to UNKNOWN
         snapshot=MarketSnapshot(ts=time.time(), bid=kwargs.pop("bid", 0.30),
                                 ask=kwargs.pop("ask", 0.33), liquidity=5000.0,
                                 volume_24h=900.0, source="verify"),
@@ -118,8 +119,11 @@ def main() -> int:
                     league="Premier League", home_team=team_a, away_team=team_b, **extra,
                 )
                 signal = runtime.strategy.evaluate_market(market)
-                produced = signal.model_probability > 0 or signal.state.value in (
-                    "INSUFFICIENT_DATA", "UNSUPPORTED", "NO_TRADE")
+                # These are SUPPORTED families with known teams, so the model must
+                # actually produce a probability. A probability of exactly 0 with a
+                # non-refusal state would mean the model silently did nothing, which
+                # is the failure mode this check exists to catch.
+                produced = signal.model_probability > 0 and signal.market_price > 0
                 check(f"signal path: {market_type.value}", produced,
                       f"{signal.state.value} model={signal.model_probability:.3f} "
                       f"price={signal.market_price:.3f} edge={signal.edge:+.3f}")
