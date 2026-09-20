@@ -125,3 +125,32 @@ def test_transaction_rolls_back_on_error(database):
 def test_in_memory_database_works():
     with Database(":memory:") as db:
         assert "signals" in db.table_names()
+
+
+def test_column_identifier_guard_rejects_injection_attempts():
+    """Defence in depth: a column name must be a bare identifier."""
+    from src.storage.database import _safe_column
+
+    assert _safe_column("filled_size") == "filled_size"
+    for hostile in ("size; DROP TABLE orders", "size = 1, status", "1=1", "a-b", "", "size'"):
+        with pytest.raises(ValueError):
+            _safe_column(hostile)
+
+
+def test_update_order_ignores_unknown_and_hostile_columns(database):
+    order_id = database.insert_order({"market_id": "M1", "side": "BUY", "price": 0.3,
+                                      "size": 10.0, "status": "PENDING", "mode": "paper"})
+    # An unknown kwarg must be ignored, and a hostile one must never reach SQL.
+    database.update_order(order_id, status="FILLED", **{"evil; DROP TABLE orders": "x"})
+    stored = database.query_one("SELECT * FROM orders WHERE order_id = ?", (order_id,))
+    assert stored["status"] == "FILLED"
+    assert "orders" in database.table_names()
+
+
+def test_update_position_rejects_hostile_column(database):
+    database.insert_position({"position_id": "P1", "market_id": "M1", "size": 10.0,
+                              "entry_price": 0.5, "status": "OPEN", "mode": "paper"})
+    database.update_position("P1", status="CLOSED",
+                             **{"status = 'HACKED', x": "y"})
+    stored = database.query_one("SELECT * FROM positions WHERE position_id = ?", ("P1",))
+    assert stored["status"] == "CLOSED"

@@ -60,7 +60,11 @@ class FeatureSet:
             },
             sort_keys=True,
         )
-        return f"FEAT-{hashlib.sha1(payload.encode()).hexdigest()[:16]}"
+        # Content address for a feature snapshot: an identity, not a security
+        # primitive. SHA-256 is used regardless so the construct is unambiguous
+        # to both readers and static analysers.
+        digest = hashlib.sha256(payload.encode()).hexdigest()
+        return f"FEAT-{digest[:16]}"
 
     def get(self, name: str, default: Any = None) -> Any:
         value = self.values.get(name, default)

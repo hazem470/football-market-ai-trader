@@ -273,3 +273,28 @@ def test_license_is_the_verbatim_mit_text_and_notice_is_separate():
     assert "no profit guarantee" in notice.lower()
     assert "financial advice" in notice
     assert "disabled by default" in notice
+
+
+def test_no_sha1_in_security_sensitive_paths():
+    """SHA-1 is a weak hash; identifiers here use SHA-256 so static analysis and
+    readers do not have to reason about `usedforsecurity`."""
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1] / "src"
+    offenders = []
+    for path in root.rglob("*.py"):
+        text = path.read_text(encoding="utf-8")
+        if "hashlib.sha1(" in text or "hashlib.md5(" in text:
+            offenders.append(str(path.relative_to(root.parent)))
+    assert offenders == [], f"weak hash usage in: {offenders}"
+
+
+def test_deterministic_identifier_length_is_stable():
+    """The id format is part of the duplicate-protection contract."""
+    from src.execution.order_manager import make_client_order_id
+
+    value = make_client_order_id("SIG-2026-0920-ABCDEF")
+    assert value.startswith("fmt-")
+    assert len(value) == len("fmt-") + 20
+    assert value == make_client_order_id("SIG-2026-0920-ABCDEF")
+    assert value != make_client_order_id("SIG-2026-0920-ABCDEF", attempt=1)

@@ -21,7 +21,13 @@ from src.strategy.signals import Signal
 
 
 def make_client_order_id(signal_id: str, attempt: int = 0) -> str:
-    digest = hashlib.sha1(f"{signal_id}|{attempt}".encode()).hexdigest()[:20]
+    """Deterministic, idempotent client order id for one (signal, attempt).
+
+    This is an identifier, not a security primitive: determinism is what makes a
+    resent order recognisable as the SAME order rather than a duplicate. SHA-256
+    is used so the construct is unambiguous to readers and static analysers.
+    """
+    digest = hashlib.sha256(f"{signal_id}|{attempt}".encode()).hexdigest()[:20]
     return f"fmt-{digest}"
 
 

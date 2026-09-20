@@ -7,6 +7,7 @@ this one class - no other module touches SQL.
 from __future__ import annotations
 
 import json
+import re
 import sqlite3
 import threading
 import time
@@ -295,6 +296,21 @@ def _json_dumps(value: Any) -> str:
         return json.dumps(value, ensure_ascii=False, default=str)
     except (TypeError, ValueError):
         return json.dumps({"_unserialisable": str(type(value))})
+
+
+_COLUMN_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+
+def _safe_column(name: str) -> str:
+    """Assert that a column name is a bare identifier before interpolating it.
+
+    Defence in depth on top of the per-table allowlists: even if a future caller
+    bypassed the allowlist, a name containing anything but word characters is
+    rejected here rather than reaching SQL. Values are always bound parameters.
+    """
+    if not _COLUMN_RE.match(name):
+        raise ValueError(f"unsafe SQL column identifier: {name!r}")
+    return name
 
 
 def _to_float(value: Any) -> float | None:
@@ -692,23 +708,28 @@ class Database:
         )
         return order_id
 
+    #: Columns that may appear in a generated UPDATE. Every name is interpolated
+    #: from THIS set, never from caller input, and all values are bound
+    #: parameters, so the statement cannot be influenced by data.
+    _ORDER_UPDATABLE: frozenset[str] = frozenset(
+        {"status", "exchange_order_id", "filled_size", "avg_fill_price",
+         "error", "raw_json", "price", "size"}
+    )
+
     def update_order(self, order_id: str, **fields) -> None:
-        allowed = {
-            "status", "exchange_order_id", "filled_size", "avg_fill_price", "error", "raw_json", "price", "size",
-        }
         sets: list[str] = []
         params: list[Any] = []
         for key, value in fields.items():
-            if key not in allowed:
+            if key not in self._ORDER_UPDATABLE:
                 continue
-            sets.append(f"{key} = ?")
+            sets.append(f"{_safe_column(key)} = ?")
             params.append(_json_dumps(value) if key == "raw_json" else value)
         if not sets:
             return
         sets.append("updated_at = ?")
         params.append(time.time())
         params.append(order_id)
-        self.execute(f"UPDATE orders SET {', '.join(sets)} WHERE order_id = ?", params)
+        self.execute(f"UPDATE orders SET {', '.join(sets)} WHERE order_id = ?", params)  # nosec B608
 
     def list_orders(self, status: str | None = None, limit: int = 200) -> list[dict]:
         sql = "SELECT * FROM orders WHERE 1=1"
@@ -755,22 +776,24 @@ class Database:
         )
         return position_id
 
+    #: See `_ORDER_UPDATABLE`.
+    _POSITION_UPDATABLE: frozenset[str] = frozenset(
+        {"current_price", "closed_at", "exit_price", "realized_pnl",
+         "unrealized_pnl", "status", "size", "payload_json"}
+    )
+
     def update_position(self, position_id: str, **fields) -> None:
-        allowed = {
-            "current_price", "closed_at", "exit_price", "realized_pnl",
-            "unrealized_pnl", "status", "size", "payload_json",
-        }
         sets: list[str] = []
         params: list[Any] = []
         for key, value in fields.items():
-            if key not in allowed:
+            if key not in self._POSITION_UPDATABLE:
                 continue
-            sets.append(f"{key} = ?")
+            sets.append(f"{_safe_column(key)} = ?")
             params.append(_json_dumps(value) if key == "payload_json" else value)
         if not sets:
             return
         params.append(position_id)
-        self.execute(f"UPDATE positions SET {', '.join(sets)} WHERE position_id = ?", params)
+        self.execute(f"UPDATE positions SET {', '.join(sets)} WHERE position_id = ?", params)  # nosec B608
 
     def list_positions(self, status: str | None = "OPEN", mode: str | None = None, limit: int = 500) -> list[dict]:
         sql = "SELECT * FROM positions WHERE 1=1"

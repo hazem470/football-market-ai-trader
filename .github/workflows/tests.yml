@@ -58,6 +58,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install bandit pip-audit
       - name: Bandit (static security analysis)
+        # Hard gate: any HIGH or MEDIUM finding fails the build.
         run: bandit -q -r src app -x tests -ll
-      - name: Dependency audit
-        run: pip-audit -r requirements.txt --strict || true
+
+      - name: Dependency audit (advisory)
+        # Advisory only, and deliberately non-blocking: a new CVE in a transitive
+        # dependency should be visible in CI without turning every unrelated PR
+        # red. `--strict` is intentionally NOT used here for the same reason.
+        continue-on-error: true
+        run: pip-audit -r requirements.txt
