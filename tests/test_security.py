@@ -253,3 +253,23 @@ def test_no_runtime_artifacts_are_tracked():
         or line.startswith(("logs/", "data/", "artifacts/", ".venv/", "venv/"))
     ]
     assert offenders == [], f"runtime artifacts tracked: {offenders}"
+
+
+def test_license_is_the_verbatim_mit_text_and_notice_is_separate():
+    """Appending prose to LICENSE makes GitHub report NOASSERTION, losing the
+    licence from the repo metadata — so the extra notice must live elsewhere."""
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    license_text = (root / "LICENSE").read_text(encoding="utf-8")
+    assert license_text.startswith("MIT License")
+    assert "Permission is hereby granted, free of charge" in license_text
+    assert "WITHOUT WARRANTY OF ANY KIND" in license_text
+    # The notice must not have been merged back into LICENSE.
+    assert "NO PROFIT GUARANTEE" not in license_text
+    assert "financial advice" not in license_text
+
+    notice = (root / "NOTICE.md").read_text(encoding="utf-8")
+    assert "no profit guarantee" in notice.lower()
+    assert "financial advice" in notice
+    assert "disabled by default" in notice

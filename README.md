@@ -227,7 +227,8 @@ gating, risk limits or the LLM boundary. Two invariants no pull request may brea
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE). The research/no-profit-guarantee notice lives in
+[NOTICE.md](NOTICE.md).
 
 ## Disclaimer
 

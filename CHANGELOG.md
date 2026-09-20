@@ -84,6 +84,13 @@ First public release. Research/automation software. **Live trading is disabled b
 - Documentation: README, user guide, configuration reference, architecture, security, troubleshooting,
   development status, contributing, security policy, PR/issue templates.
 
+### Licensing
+
+- `LICENSE` carries the verbatim MIT text so tooling detects it correctly; the
+  research / no-profit-guarantee statement lives in `NOTICE.md` (an additional
+  statement of intent, not a modification of the MIT terms). Keeping them apart
+  matters: appending prose to `LICENSE` makes GitHub report `NOASSERTION`.
+
 ### Security
 
 - Seed phrases are refused everywhere, loudly (`SeedPhraseRejected`).

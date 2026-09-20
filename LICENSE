@@ -19,19 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----------------------------------------------------------------------------
-ADDITIONAL NOTICE - RESEARCH / AUTOMATION SOFTWARE, NO PROFIT GUARANTEE
-
-This project is software for research and automation purposes. It does NOT
-guarantee profits, positive returns, or any particular trading outcome.
-Nothing it produces is financial advice.
-
-Trading on prediction markets involves substantial risk of loss. You are
-solely responsible for your own funds, your own credentials, your own
-wallets and your own regulatory compliance. The authors and contributors
-have no access to and no control over any user's funds, accounts or keys.
-
-Live trading is DISABLED by default. Use backtest / shadow / paper modes
-first, and never trade more than you can afford to lose.
----------------------------------------------------------------------------
