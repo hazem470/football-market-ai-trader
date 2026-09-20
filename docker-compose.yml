@@ -1,0 +1,51 @@
+# docker compose up --build
+#
+# Secrets come from the host environment or a .env file next to this compose
+# file. NEVER commit that .env. Live trading stays disabled unless you
+# explicitly set POLYMARKET_ALLOW_LIVE_TRADING=true.
+services:
+  trader:
+    build: .
+    image: football-market-ai-trader:1.0.0
+    container_name: football-market-trader
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      TRADING_MODE: ${TRADING_MODE:-backtest}
+      POLYMARKET_ALLOW_LIVE_TRADING: ${POLYMARKET_ALLOW_LIVE_TRADING:-false}
+      DATABASE_PATH: /app/data/football_trader.db
+      LOG_DIR: /app/logs
+      DATA_DIR: /app/data
+      CACHE_DIR: /app/data/cache
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./artifacts:/app/artifacts
+      # Read-only mount of the config so the container cannot rewrite it.
+      - ./configs:/app/configs:ro
+    command: ["check"]
+    restart: "no"
+
+  dashboard:
+    build: .
+    image: football-market-ai-trader:1.0.0
+    container_name: football-market-dashboard
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      TRADING_MODE: ${TRADING_MODE:-backtest}
+      POLYMARKET_ALLOW_LIVE_TRADING: "false"
+      DATABASE_PATH: /app/data/football_trader.db
+      LOG_DIR: /app/logs
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./configs:/app/configs:ro
+    ports:
+      - "127.0.0.1:8501:8501"
+    command:
+      - "--help"
+    entrypoint: ["python", "-c", "import subprocess,sys;sys.exit(subprocess.call(['streamlit','run','app/dashboard/streamlit_app.py','--server.address=0.0.0.0','--server.port=8501','--server.headless=true']))"]
+    restart: unless-stopped
